@@ -52,4 +52,54 @@ class TestAccountModel(TestCase):
         account = Account(**data)
         account.create()
         self.assertEqual(len(Account.all()), 1)
-
+        
+    def test_repr(self):
+        """Test the representation of an account"""
+        account = Account()
+        account.name = "Foo"
+        self.assertEqual(str(account), "<Account 'Foo'>")
+        
+    def test_to_dict(self):
+        """ Test account to dict """
+        data = ACCOUNT_DATA[self.rand] # get a random account
+        account = Account(**data)
+        result = account.to_dict()
+        self.assertEqual(account.name, result["name"])
+        self.assertEqual(account.email, result["email"])
+        self.assertEqual(account.phone_number, result["phone_number"])
+        self.assertEqual(account.disabled, result["disabled"])
+        self.assertEqual(account.date_joined, result["date_joined"])
+        
+    def test_from_dict(self):
+        """ Test account from dict """
+        data = ACCOUNT_DATA[self.rand]
+        account = Account(**data)
+        result = account.from_dict(data)
+        
+    def test_update(self):
+        """ Test updating an account """
+        data = ACCOUNT_DATA[self.rand]
+        account = Account(**data)
+        account.create()
+        account.name = "Foo"
+        account.update()
+        self.assertEqual(account.name, "Foo")
+        with self.assertRaises(DataValidationError):
+            account.id = None
+            account.update()
+        
+    def test_delete(self):
+        """ Test deleting an account """
+        data = ACCOUNT_DATA[self.rand]
+        account = Account(**data)
+        account.create()
+        account.delete()
+        self.assertEqual(len(Account.all()), 0)
+    
+    def test_find(self):
+        """ Test finding an account """
+        data = ACCOUNT_DATA[self.rand]
+        account = Account(**data)
+        account.create()
+        result = Account.find(account.id)
+        self.assertEqual(result.id, account.id)
